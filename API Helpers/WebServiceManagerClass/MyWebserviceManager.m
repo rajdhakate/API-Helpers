@@ -12,7 +12,7 @@
 #import "Reachability.h"
 
 #define SALT @"..." // SALT goes here
-#define LOCALSERVER @"http://uploads.im/api?" // LOCAL URL goes here
+#define LOCALSERVER @"..." // LOCAL URL goes here
 #define HOSTINGSERVER @"..." // LIVE URL goes here
 
 @implementation MyWebserviceManager
