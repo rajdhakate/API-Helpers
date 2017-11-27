@@ -7,13 +7,13 @@
 //
 
 #import "MyWebserviceManager.h"
-#import "AFHTTPSessionManager.h"
+#import <AFNetworking.h>
 #import <CommonCrypto/CommonCrypto.h>
 #import "Reachability.h"
 
-#define SALT @"..."
-#define LOCALSERVER @"..."
-#define HOSTINGSERVER @"..."
+#define SALT @"..." // SALT goes here
+#define LOCALSERVER @"..." // LOCAL URL goes here
+#define HOSTINGSERVER @"..." // LIVE URL goes here
 
 @implementation MyWebserviceManager
 {
@@ -45,8 +45,7 @@
     }
 }
 
-- (void) callMyWebServiceManager:(NSString *)serviceName headerData:(NSString*)headerData withFieldName:(NSString*)headerFieldName parameterDictionary:(NSDictionary *)parameterDictionary serviceType:(webserviceType)serviceType
-{
+- (void) callMyWebServiceManager:(NSString *)serviceName headerData:(NSString*)headerData withFieldName:(NSString*)headerFieldName parameterDictionary:(NSDictionary *)parameterDictionary images:(NSArray<__kindof UIImage*>*)images imageFieldName:(NSString*)imageFieldName serviceType:(webserviceType)serviceType {
     if ([serviceName isEqualToString:@"version_update"]) {
         mainUrl = [NSString stringWithFormat:@"%@%@", LOCALSERVER, serviceName];
     } else {
@@ -54,72 +53,74 @@
     }
     
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    manager.responseSerializer.acceptableContentTypes = [manager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/x-www-form-urlencoded"];
-    manager.responseSerializer.acceptableContentTypes = [manager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
     
     if (headerData != nil || headerFieldName != nil) {
         [manager.requestSerializer setValue:headerData forHTTPHeaderField:headerFieldName];
     }
     
-    NSMutableArray *parameters = [NSMutableArray new];
-    for (NSString *key in parameterDictionary) {
-        id value = parameterDictionary[key];
-        NSString *parameter = [NSString stringWithFormat:@"%@=%@", key, value];
-        [parameters addObject:parameter];
-    }
-    NSString *fullURL = [NSString stringWithFormat:@"%@?%@", mainUrl, [parameters componentsJoinedByString:@"&"]];
-    
-    if (serviceType==GET) {
-        [manager GET:mainUrl parameters:parameterDictionary progress:^(NSProgress * _Nonnull downloadProgress) {
-            [self.delegate processOnGoing:serviceName process:downloadProgress];
-        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            NSLog(@"response for %@..... \n%@", fullURL, responseObject);
-            [self.delegate processCompleted:serviceName responseDictionary:responseObject];
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            NSLog(@"error for %@..... \n%@", fullURL, error);
-            [self.delegate processFailed:error];
-        }];
-    } else {
-        [manager POST:mainUrl parameters:parameterDictionary progress:^(NSProgress * _Nonnull uploadProgress) {
-            [self.delegate processOnGoing:serviceName process:uploadProgress];
-        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            [self.delegate processCompleted:serviceName responseDictionary:responseObject];
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            [self.delegate processFailed: error];
-        }];
-    }
+    [self manager:manager serviceType:serviceType url:mainUrl serviceName:serviceName parameters:parameterDictionary images:images imageFieldName:imageFieldName];
 }
 
-- (void) callMyWebServiceManagerWithOutParameter:(NSString *)serviceName serviceType:(webserviceType)serviceType
-{
-    if ([serviceName isEqualToString:@"version_update"]) {
-        mainUrl = [NSString stringWithFormat:@"%@%@", LOCALSERVER, serviceName];
-    } else {
-        mainUrl = [NSString stringWithFormat:@"%@%@", LOCALSERVER, serviceName];
-    }
+- (void) manager:(AFHTTPSessionManager*)manager serviceType:(webserviceType)serviceType url:(NSString*)url serviceName:(NSString*)serviceName parameters:(NSDictionary*)parameters images:(NSArray<__kindof UIImage *> *)images imageFieldName:(NSString*)fileName {
     
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer.acceptableContentTypes = [manager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/x-www-form-urlencoded"];
     manager.responseSerializer.acceptableContentTypes = [manager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
     
-    if (serviceType==GET) {
-        [manager GET:mainUrl parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-            [self.delegate processOnGoing:serviceName process:downloadProgress];
-        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            NSLog(@"Test is.....%@",responseObject);
-            [self.delegate processCompleted:serviceName responseDictionary:responseObject];
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            [self.delegate processFailed: error];
-        }];
+    NSError *error;
+    NSString *fullURL;
+    
+    if (parameters) {
+        NSMutableArray *parameterDictionary = [NSMutableArray new];
+        for (NSString *key in parameters) {
+            id value = parameters[key];
+            NSString *parameter = [NSString stringWithFormat:@"%@=%@", key, value];
+            [parameterDictionary addObject:parameter];
+        }
+        fullURL = [NSString stringWithFormat:@"%@?%@", url, [parameterDictionary componentsJoinedByString:@"&"]];
+    }
+    
+    if (images) {
+        for (UIImage *image in images) {
+            NSURLSessionTask *task = [manager POST:url parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+                NSData *data = UIImageJPEGRepresentation(image, 1.0);
+                [formData appendPartWithFileData:data name:@"file" fileName:fileName mimeType:@"image/jpg"];
+            } progress:^(NSProgress * _Nonnull uploadProgress) {
+                [self.delegate processOnGoing:serviceName process:uploadProgress];
+            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                NSLog(@"response for %@..... \n%@", url, responseObject);
+                [self.delegate processCompleted:serviceName responseDictionary:responseObject];
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                NSLog(@"error for %@..... \n%@", url, error.localizedDescription);
+                [self.delegate processFailed:error];
+            }];
+            
+            if (error || !task) {
+                NSLog(@"Creation of task failed for %@..... \n%@", url, error.localizedDescription);
+            }
+        }
     } else {
-        [manager POST:mainUrl parameters:nil progress:^(NSProgress * _Nonnull uploadProgress) {
-            [self.delegate processOnGoing:serviceName process:uploadProgress];
-        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            [self.delegate processCompleted:serviceName responseDictionary:responseObject];
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            [self.delegate processFailed: error];
-        }];
+        if (serviceType == GET) {
+            [manager GET:url parameters:parameters progress:^(NSProgress * _Nonnull downloadProgress) {
+                [self.delegate processOnGoing:serviceName process:downloadProgress];
+            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                NSLog(@"response for %@..... \n%@", url, responseObject);
+                [self.delegate processCompleted:serviceName responseDictionary:responseObject];
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                NSLog(@"error for %@..... \n%@", url, error.localizedDescription);
+                [self.delegate processFailed: error];
+            }];
+        } else {
+            [manager POST:url parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+                [self.delegate processOnGoing:serviceName process:uploadProgress];
+            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                NSLog(@"response for %@..... \n%@", url, responseObject);
+                [self.delegate processCompleted:serviceName responseDictionary:responseObject];
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                NSLog(@"error for %@..... \n%@", url, error.localizedDescription);
+                [self.delegate processFailed: error];
+            }];
+        }
     }
 }
-
 
 @end

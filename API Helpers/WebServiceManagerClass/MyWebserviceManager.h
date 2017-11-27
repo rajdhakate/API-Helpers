@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "MyWebServiceManagerProtocol.h"
 
 typedef enum{
@@ -24,10 +25,7 @@ typedef enum{
 // Check Connectivity
 - (BOOL) connected;
 
-// Call Web Service Method With Parameters
-- (void) callMyWebServiceManager:(NSString *)serviceName headerData:(NSString*)headerData withFieldName:(NSString*)headerFieldName parameterDictionary:(NSDictionary *)parameterDictionary serviceType:(webserviceType)serviceType;
-
-// Call Web Service Method Without Parameters
-- (void) callMyWebServiceManagerWithOutParameter:(NSString *)serviceName serviceType:(webserviceType)serviceType;
+// Call Web Service Method With headerData (nullable), Parameters (nullable), images (nullable)
+- (void) callMyWebServiceManager:(NSString *)serviceName headerData:(NSString*)headerData withFieldName:(NSString*)headerFieldName parameterDictionary:(NSDictionary *)parameterDictionary images:(NSArray<__kindof UIImage*>*)images imageFieldName:(NSString*)imageFieldName serviceType:(webserviceType)serviceType;
 
 @end
