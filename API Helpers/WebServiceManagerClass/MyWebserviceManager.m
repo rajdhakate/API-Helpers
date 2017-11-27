@@ -12,8 +12,8 @@
 #import "Reachability.h"
 
 #define SALT @"Yfs578H78Rdf87o5Vds8J"
-#define LOCALSERVER @"http://api.myhbn.net/"
-#define HOSTINGSERVER @"http://api.myhbn.net/"
+#define LOCALSERVER @"..."
+#define HOSTINGSERVER @"..."
 
 @implementation MyWebserviceManager
 {
