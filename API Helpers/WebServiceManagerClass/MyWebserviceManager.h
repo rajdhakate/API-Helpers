@@ -20,12 +20,12 @@ typedef enum{
 @property (nonatomic,strong) id <MyWebServiceManagerProtocol> delegate;
 
 // Generate Auth Code
-+ (NSString*) getSHA1WithCharacters:(NSString*)string;
++ (NSString *) getSHA1WithCharacters:(NSString *)string;
 
 // Check Connectivity
 - (BOOL) connected;
 
 // Call Web Service Method With headerData (nullable), Parameters (nullable), images (nullable)
-- (void) callMyWebServiceManager:(NSString *)serviceName headerData:(NSString*)headerData withFieldName:(NSString*)headerFieldName parameterDictionary:(NSDictionary *)parameterDictionary images:(NSArray<__kindof UIImage*>*)images imageFieldName:(NSString*)imageFieldName serviceType:(webserviceType)serviceType;
+- (void) callMyWebServiceManager:(NSString *)serviceName headerData:(NSString *)headerData withFieldName:(NSString *)headerFieldName parameterDictionary:(NSDictionary *)parameterDictionary images:(NSArray<__kindof UIImage*> *)images imageFieldName:(NSString *)imageFieldName serviceType:(webserviceType)serviceType;
 
 @end

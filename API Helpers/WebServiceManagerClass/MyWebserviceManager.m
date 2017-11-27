@@ -20,7 +20,7 @@
     NSString *mainUrl;
 }
 
-+ (NSString*) getSHA1WithCharacters:(NSString*)string {
++ (NSString *) getSHA1WithCharacters:(NSString *)string {
     NSString *saltAndEmail = [NSString stringWithFormat:@"%@%@", SALT, string];
     NSData *data = [saltAndEmail dataUsingEncoding:NSUTF8StringEncoding];
     uint8_t digest[CC_SHA1_DIGEST_LENGTH];
@@ -45,7 +45,7 @@
     }
 }
 
-- (void) callMyWebServiceManager:(NSString *)serviceName headerData:(NSString*)headerData withFieldName:(NSString*)headerFieldName parameterDictionary:(NSDictionary *)parameterDictionary images:(NSArray<__kindof UIImage*>*)images imageFieldName:(NSString*)imageFieldName serviceType:(webserviceType)serviceType {
+- (void) callMyWebServiceManager:(NSString *)serviceName headerData:(NSString *)headerData withFieldName:(NSString *)headerFieldName parameterDictionary:(NSDictionary *)parameterDictionary images:(NSArray<__kindof UIImage*> *)images imageFieldName:(NSString *)imageFieldName serviceType:(webserviceType)serviceType {
     if ([serviceName isEqualToString:@"version_update"]) {
         mainUrl = [NSString stringWithFormat:@"%@%@", LOCALSERVER, serviceName];
     } else {
@@ -61,7 +61,7 @@
     [self manager:manager serviceType:serviceType url:mainUrl serviceName:serviceName parameters:parameterDictionary images:images imageFieldName:imageFieldName];
 }
 
-- (void) manager:(AFHTTPSessionManager*)manager serviceType:(webserviceType)serviceType url:(NSString*)url serviceName:(NSString*)serviceName parameters:(NSDictionary*)parameters images:(NSArray<__kindof UIImage *> *)images imageFieldName:(NSString*)fileName {
+- (void) manager:(AFHTTPSessionManager *)manager serviceType:(webserviceType)serviceType url:(NSString *)url serviceName:(NSString *)serviceName parameters:(NSDictionary *)parameters images:(NSArray<__kindof UIImage *> *)images imageFieldName:(NSString *)fileName {
     
     manager.responseSerializer.acceptableContentTypes = [manager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/x-www-form-urlencoded"];
     manager.responseSerializer.acceptableContentTypes = [manager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
