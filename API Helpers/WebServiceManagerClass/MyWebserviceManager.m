@@ -11,7 +11,7 @@
 #import <CommonCrypto/CommonCrypto.h>
 #import "Reachability.h"
 
-#define SALT @"Yfs578H78Rdf87o5Vds8J"
+#define SALT @"..."
 #define LOCALSERVER @"..."
 #define HOSTINGSERVER @"..."
 
