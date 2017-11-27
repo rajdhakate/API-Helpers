@@ -15,6 +15,6 @@
 - (void) processFailed:(NSError *)errorDictionary;
 
 @optional
-- (void) processOnGoing:(NSString*)serviceName process:(NSProgress*)progress;
+- (void) processOnGoing:(NSString*)serviceName progress:(double)progress;
 
 @end

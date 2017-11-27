@@ -12,7 +12,7 @@
 #import "Reachability.h"
 
 #define SALT @"..." // SALT goes here
-#define LOCALSERVER @"..." // LOCAL URL goes here
+#define LOCALSERVER @"http://uploads.im/api?" // LOCAL URL goes here
 #define HOSTINGSERVER @"..." // LIVE URL goes here
 
 @implementation MyWebserviceManager
@@ -83,9 +83,11 @@
         for (UIImage *image in images) {
             NSURLSessionTask *task = [manager POST:url parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
                 NSData *data = UIImageJPEGRepresentation(image, 1.0);
-                [formData appendPartWithFileData:data name:@"file" fileName:fileName mimeType:@"image/jpg"];
+                [formData appendPartWithFileData:data name:@"file" fileName:[NSString stringWithFormat:@"%@.png", fileName] mimeType:@"image/png"];
             } progress:^(NSProgress * _Nonnull uploadProgress) {
-                [self.delegate processOnGoing:serviceName process:uploadProgress];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate processOnGoing:serviceName progress:uploadProgress.fractionCompleted*100];
+                });
             } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 NSLog(@"response for %@..... \n%@", url, responseObject);
                 [self.delegate processCompleted:serviceName responseDictionary:responseObject];
@@ -101,7 +103,9 @@
     } else {
         if (serviceType == GET) {
             [manager GET:url parameters:parameters progress:^(NSProgress * _Nonnull downloadProgress) {
-                [self.delegate processOnGoing:serviceName process:downloadProgress];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate processOnGoing:serviceName progress:downloadProgress.fractionCompleted*100];
+                });
             } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 NSLog(@"response for %@..... \n%@", url, responseObject);
                 [self.delegate processCompleted:serviceName responseDictionary:responseObject];
@@ -111,7 +115,9 @@
             }];
         } else {
             [manager POST:url parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
-                [self.delegate processOnGoing:serviceName process:uploadProgress];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate processOnGoing:serviceName progress:uploadProgress.fractionCompleted*100];
+                });
             } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 NSLog(@"response for %@..... \n%@", url, responseObject);
                 [self.delegate processCompleted:serviceName responseDictionary:responseObject];
