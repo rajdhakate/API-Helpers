@@ -17,7 +17,9 @@ Drag drop API Helpers into your Project.
 
 4. Set your ```parameters``` as ```NSDictionary```.
 
-5. Call instance method ```callMyWebServiceManager``` with or without parameters.
+5. Call instance method ```callMyWebServiceManager``` .
+
+- 
 
 6. Implement two required delegate methods. ```processCompleted``` & ```processFailed```.
 
