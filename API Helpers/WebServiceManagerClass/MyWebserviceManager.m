@@ -83,7 +83,7 @@
         for (UIImage *image in images) {
             NSURLSessionTask *task = [manager POST:url parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
                 NSData *data = UIImageJPEGRepresentation(image, 1.0);
-                [formData appendPartWithFileData:data name:@"file" fileName:[NSString stringWithFormat:@"%@.png", fileName] mimeType:@"image/png"];
+                [formData appendPartWithFileData:data name:fileName fileName:[NSString stringWithFormat:@"%@.png", fileName] mimeType:@"image/png"];
             } progress:^(NSProgress * _Nonnull uploadProgress) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.delegate processOnGoing:serviceName progress:uploadProgress.fractionCompleted*100];
