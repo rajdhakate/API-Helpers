@@ -8,10 +8,8 @@
 
 #import "MyWebserviceManager.h"
 #import <AFNetworking.h>
-#import <CommonCrypto/CommonCrypto.h>
 #import "Reachability.h"
 
-#define SALT @"..." // SALT goes here
 #define LOCALSERVER @"..." // LOCAL URL goes here
 #define HOSTINGSERVER @"..." // LIVE URL goes here
 
@@ -20,27 +18,20 @@
     NSString *mainUrl;
 }
 
-+ (NSString *) getSHA1WithCharacters:(NSString *)string {
-    NSString *saltAndEmail = [NSString stringWithFormat:@"%@%@", SALT, string];
-    NSData *data = [saltAndEmail dataUsingEncoding:NSUTF8StringEncoding];
-    uint8_t digest[CC_SHA1_DIGEST_LENGTH];
-    CC_SHA1(data.bytes, (uint)data.length, digest);
-    NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
-    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++)
-    {
-        [output appendFormat:@"%02x", digest[i]];
-    }
-    NSLog(@"String - %@\nSalt - %@\nAuthCode - %@", string, SALT, output);
-    return output;
-}
-
 - (BOOL) connected {
+    if (!self.logType) {
+        self.logType = Default;
+    }
     Reachability *reach = [Reachability reachabilityForInternetConnection];
     if ([reach currentReachabilityStatus] != NotReachable) {
-        NSLog(@"Device is connected to the internet");
+        if (self.logType != None) {
+            NSLog(@"API-Helper <Reachability> : Device is connected to the internet");
+        }
         return TRUE;
     } else {
-        NSLog(@"Device is not connected to the internet");
+        if (self.logType != None) {
+            NSLog(@"API-Helper <Reachability> : Device is not connected to the internet");
+        }
         return FALSE;
     }
 }
@@ -77,6 +68,9 @@
             [parameterDictionary addObject:parameter];
         }
         fullURL = [NSString stringWithFormat:@"%@?%@", url, [parameterDictionary componentsJoinedByString:@"&"]];
+        if (self.logType != None) {
+            NSLog(@"API-Helper <FullURL> : %@", fullURL);
+        }
     }
     
     if (images) {
@@ -89,15 +83,21 @@
                     [self.delegate processOnGoing:serviceName progress:uploadProgress.fractionCompleted*100];
                 });
             } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                NSLog(@"response for %@..... \n%@", url, responseObject);
+                if (self.logType == URLWithResponse) {
+                    NSLog(@"API-Helper : response for %@..... \n%@", url, responseObject);
+                }
                 [self.delegate processCompleted:serviceName responseDictionary:responseObject];
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                NSLog(@"error for %@..... \n%@", url, error.localizedDescription);
+                if (self.logType == URLWithResponse) {
+                    NSLog(@"API-Helper : error for %@..... \n%@", url, error.localizedDescription);
+                }
                 [self.delegate processFailed:error];
             }];
             
             if (error || !task) {
-                NSLog(@"Creation of task failed for %@..... \n%@", url, error.localizedDescription);
+                if (self.logType == URLWithResponse) {
+                    NSLog(@"API-Helper : Creation of task failed for %@..... \n%@", url, error.localizedDescription);
+                }
             }
         }
     } else {
@@ -107,10 +107,14 @@
                     [self.delegate processOnGoing:serviceName progress:downloadProgress.fractionCompleted*100];
                 });
             } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                NSLog(@"response for %@..... \n%@", url, responseObject);
+                if (self.logType == URLWithResponse) {
+                    NSLog(@"API-Helper : response for %@..... \n%@", url, responseObject);
+                }
                 [self.delegate processCompleted:serviceName responseDictionary:responseObject];
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                NSLog(@"error for %@..... \n%@", url, error.localizedDescription);
+                if (self.logType == URLWithResponse) {
+                    NSLog(@"API-Helper : error for %@..... \n%@", url, error.localizedDescription);
+                }
                 [self.delegate processFailed: error];
             }];
         } else {
@@ -119,10 +123,14 @@
                     [self.delegate processOnGoing:serviceName progress:uploadProgress.fractionCompleted*100];
                 });
             } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                NSLog(@"response for %@..... \n%@", url, responseObject);
+                if (self.logType == URLWithResponse) {
+                    NSLog(@"API-Helper : response for %@..... \n%@", url, responseObject);
+                }
                 [self.delegate processCompleted:serviceName responseDictionary:responseObject];
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                NSLog(@"error for %@..... \n%@", url, error.localizedDescription);
+                if (self.logType == URLWithResponse) {
+                    NSLog(@"API-Helper : error for %@..... \n%@", url, error.localizedDescription);
+                }
                 [self.delegate processFailed: error];
             }];
         }

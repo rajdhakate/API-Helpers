@@ -15,12 +15,18 @@ typedef enum{
     POST,
 } webserviceType;
 
+typedef enum {
+    Default,
+    None,
+    URLOnly,
+    URLWithResponse,
+}LogType;
+
 @interface MyWebserviceManager : NSObject
 
-@property (nonatomic,strong) id <MyWebServiceManagerProtocol> delegate;
+@property (weak, nonatomic) LogType logType;
 
-// Generate Auth Code
-+ (NSString *) getSHA1WithCharacters:(NSString *)string;
+@property (nonatomic,weak) id <MyWebServiceManagerProtocol> delegate;
 
 // Check Connectivity
 - (BOOL) connected;

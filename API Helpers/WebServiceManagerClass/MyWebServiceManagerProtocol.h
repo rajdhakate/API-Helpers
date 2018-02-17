@@ -13,8 +13,6 @@
 @required
 - (void) processCompleted:(NSString *)serviceName responseDictionary:(NSDictionary *)responseDictionary;
 - (void) processFailed:(NSError *)errorDictionary;
-
-@optional
 - (void) processOnGoing:(NSString*)serviceName progress:(double)progress;
 
 @end
