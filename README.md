@@ -17,21 +17,17 @@ Drag drop API Helpers into your Project.
 
 4. Set your ```parameters``` as ```NSDictionary```.
 
-5. Call instance method ```callMyWebServiceManager``` .
+5. Set what type of log you want. ```(None, Default, URLOnly, URLWithResponse)```
+
+6. Call instance method ```callMyWebServiceManager``` .
 
 - 
 
-6. Implement two required delegate methods. ```processCompleted``` & ```processFailed```.
-
-7. [Optional] ```processOnGoing```
+7. Implement required delegate methods. ```processCompleted```, ```processFailed``` & ```processOnGoing```
 
 # Reachability
 
 Reachability class tells about internet connectivity. You can use instance method ```connected``` to check for connectivity.
-
-# SHA1 Auth Code Generation
-
-SHA1 generation generates auth code with SALT and provided string. You can use class method ```getSHA1WithCharacters``` to get Auth Code.
 
 # Support
 
